@@ -1,11 +1,11 @@
-import { createHash, generateKeyPair as genCb } from 'crypto'
+import { createHash, generateKeyPair as genKeyPairCb } from 'crypto'
 import { promisify } from 'util'
 
-const genKeyPair = promisify(genCb)
+const genKeyPair = promisify(genKeyPairCb)
 
-export function hash (str) {
-  const h = createHash('sha256')
-  h.update(str)
+export function hash (...data) {
+  const h = createHash('md5')
+  data.forEach(d => h.update(d))
   return h.digest('hex')
 }
 
