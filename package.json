@@ -1,0 +1,22 @@
+{
+  "name": "samplechain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "central": "node src/central/index"
+  },
+  "keywords": [],
+  "author": "Alan-Liang",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/router": "^8.0.2",
+    "ejs": "^2.7.1",
+    "esm": "^3.2.25",
+    "koa": "^2.11.0",
+    "koa-ejs": "^4.2.0",
+    "koa-logger": "^3.2.1",
+    "node-fetch": "^2.6.0"
+  }
+}
