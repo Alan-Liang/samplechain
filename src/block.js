@@ -2,18 +2,19 @@ import { hash } from './util'
 import { readFileSync } from 'fs'
 import Transaction from './transaction'
 import assert from 'assert'
-
-export const difficulty = 0x0fffffffffffffffffffffffffffffff
+import { chainData, difficulty } from './chain'
 
 export default class Block {
   constructor (options) {
-    ;['prev', 'data', 'account', 'nonce', 'isGenesis'].forEach(prop => this[prop] = options[prop])
+    ;['prev', 'data', 'account', 'nonce', 'isGenesis', 'id', 'depth'].forEach(prop => this[prop] = options[prop])
     this.init()
   }
 
   init () {
     // TODO
-    this.id = hash(this.prev, JSON.stringify(this.data), this.account, this.nonce)
+    assert(this.isGenesis || chainData[this.prev], 'No previous block')
+    if(!this.id) this.id = hash(this.prev, JSON.stringify(this.data), this.account, this.nonce)
+    if(!'depth' in this) this.depth = chainData[this.prev].depth + 1
     assert(Array.isArray(this.data))
     this.data = this.data.map(tx => tx instanceof Transaction ? tx : new Transaction(tx))
     if(this.isGenesis) return
@@ -22,7 +23,7 @@ export default class Block {
 
   validate () {
     // TODO
-    if(!this.isGenesis && !parseInt(this.id, 16) < difficulty) return false
+    if(!this.isGenesis && !(BigInt('0x' + this.id) < difficulty)) return false
     if(!this.data.every(tx => tx instanceof Transaction)) return false
     if(!this.data.every(tx => tx.validate())) return false
     return true
@@ -30,7 +31,8 @@ export default class Block {
 
   toObject () {
     const obj = {}
-    ;['prev', 'data', 'account', 'nonce', 'id'].forEach(prop => obj[prop] = this[prop])
+    ;['prev', 'account', 'nonce', 'id'].forEach(prop => obj[prop] = this[prop])
+    obj.data = this.data.map(tx => tx.toObject())
     if(this.isGenesis) obj.isGenesis = this.isGenesis
     return obj
   }

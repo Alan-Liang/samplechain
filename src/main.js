@@ -2,7 +2,7 @@ import Koa from 'koa'
 import render from 'koa-ejs'
 import Router from '@koa/router'
 import logger from 'koa-logger'
-import path, { join } from 'path'
+import path from 'path'
 import fetch from 'node-fetch'
 
 let central, remotes, timeoutId

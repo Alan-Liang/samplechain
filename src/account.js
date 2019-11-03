@@ -5,11 +5,13 @@ export default class Account {
     this.pub = pub
     this.priv = priv
   }
-  validate() {
+  validate () {
     // TODO
     return true
   }
-  sign() {}
+  sign () {
+    // TODO
+  }
   static async generate () {
     const { publicKey, privateKey } = await generateKeyPair()
     return new Account(publicKey, privateKey)

@@ -1,3 +1,6 @@
+export const difficulty = 0x0fffffffffffffffffffffffffffffffn
+export let chainData
+
 import Block, { genesis } from './block'
 import { readFileSync, writeFile as writeFileCb } from 'fs'
 import { promisify } from 'util'
@@ -5,31 +8,39 @@ import assert from 'assert'
 
 const writeFile = promisify(writeFileCb)
 
-export let chainData
 let dataChanged = false, updating = false
 const updateInterval = 1000 // 1s
+const chainFile = 'chain.json'
 
 try {
-  chainData = JSON.parse(readFileSync('data.json')).map(b => new Block(b))
+  chainData = JSON.parse(readFileSync(chainFile)).map(b => new Block(b))
 } catch(e) {
-  chainData = [ genesis ]
-  console.log('[INFO] Data file not found, using empty:' + e)
+  chainData = { [genesis.id]: genesis }
+  console.log('[INFO] Data file not found, using empty: ' + e)
 }
 
 export function addBlock (block) {
   assert(block instanceof Block)
   assert(!block.isGenesis)
-  chainData.push(block)
+  assert(block.validate())
+  chainData[block.id] = block
   dataChanged = true
+}
+
+export function getLastBlock () {
+  return [...Object.keys(chainData)].reduce((prev, curr) => curr.depth > prev.depth ? curr : prev, genesis)
 }
 
 setInterval(async () => {
   if(dataChanged && !updating) {
     updating = true
     dataChanged = false
-    data = chainData.map(block => block.toObject())
+    let data = {}
+    for (let id in chainData) {
+      data[id] = chainData[id].toObject()
+    }
     try {
-      await writeFile('data.json', JSON.stringify(data))
+      await writeFile(chainFile, JSON.stringify(data))
     } catch {
       console.log('[ERR] Cannot write data file')
     }
