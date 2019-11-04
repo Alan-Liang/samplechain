@@ -5,7 +5,10 @@
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "central": "node src/central/index"
+    "start": "node .",
+    "start:dev": "NODE_ENV=development node .",
+    "central": "node src/central/index",
+    "central:dev": "NODE_ENV=development node src/central/index"
   },
   "keywords": [],
   "author": "Alan-Liang",

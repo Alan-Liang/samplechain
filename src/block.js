@@ -6,7 +6,7 @@ import { chainData, difficulty } from './chain'
 
 export default class Block {
   constructor (options) {
-    ;['prev', 'data', 'account', 'nonce', 'isGenesis', 'id', 'depth'].forEach(prop => this[prop] = options[prop])
+    ;['prev', 'data', 'account', 'nonce', 'isGenesis', 'id', 'height'].forEach(prop => this[prop] = options[prop])
     this.init()
   }
 
@@ -14,7 +14,7 @@ export default class Block {
     // TODO
     assert(this.isGenesis || chainData[this.prev], 'No previous block')
     if(!this.id) this.id = hash(this.prev, JSON.stringify(this.data), this.account, this.nonce)
-    if(!'depth' in this) this.depth = chainData[this.prev].depth + 1
+    if(typeof this.height !== 'number') this.height = chainData[this.prev].height + 1
     assert(Array.isArray(this.data))
     this.data = this.data.map(tx => tx instanceof Transaction ? tx : new Transaction(tx))
     if(this.isGenesis) return
@@ -31,7 +31,7 @@ export default class Block {
 
   toObject () {
     const obj = {}
-    ;['prev', 'account', 'nonce', 'id'].forEach(prop => obj[prop] = this[prop])
+    ;['prev', 'account', 'nonce', 'id', 'height'].forEach(prop => obj[prop] = this[prop])
     obj.data = this.data.map(tx => tx.toObject())
     if(this.isGenesis) obj.isGenesis = this.isGenesis
     return obj

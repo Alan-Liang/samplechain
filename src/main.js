@@ -4,6 +4,11 @@ import Router from '@koa/router'
 import logger from 'koa-logger'
 import path from 'path'
 import fetch from 'node-fetch'
+import { account } from './account'
+import { exportKey } from './util'
+import { start as startMining } from './miner'
+
+startMining(20*10)
 
 let central, remotes, timeoutId
 const port = 34991
@@ -43,8 +48,10 @@ router.get('/set-central', async ctx => {
   const url = new URL('http://localhost:8080/')
   url.host = ctx.query.central
   url.port = centralPort
-  const res = await fetch(new URL('/status', url)).then(res => res.json())
-  if(res.status !== 0) {
+  try {
+    const res = await fetch(new URL('/status', url)).then(res => res.json())
+    if(res.status !== 0) throw 'Invalid'
+  } catch {
     ctx.redirect('/')
     return
   }
@@ -55,7 +62,11 @@ router.get('/set-central', async ctx => {
 
 router.get('/stats', async ctx => {
   if(!central) return ctx.redirect('/')
-  await ctx.render('stats', {title: 'Stats', remotes})
+  await ctx.render('stats', {
+    title: 'Stats',
+    remotes,
+    account: exportKey(account.pub),
+  })
 })
 
 app.use(logger())

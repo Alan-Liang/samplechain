@@ -1,4 +1,4 @@
-export const difficulty = 0x0fffffffffffffffffffffffffffffffn
+export const difficulty = 0x002fffffffffffffffffffffffffffffn
 export let chainData
 
 import Block, { genesis } from './block'
@@ -13,7 +13,8 @@ const updateInterval = 1000 // 1s
 const chainFile = 'chain.json'
 
 try {
-  chainData = JSON.parse(readFileSync(chainFile)).map(b => new Block(b))
+  chainData = JSON.parse(readFileSync(chainFile))
+  for(let id in chainData) chainData[id] = new Block(chainData[id])
 } catch(e) {
   chainData = { [genesis.id]: genesis }
   console.log('[INFO] Data file not found, using empty: ' + e)
@@ -28,7 +29,7 @@ export function addBlock (block) {
 }
 
 export function getLastBlock () {
-  return [...Object.keys(chainData)].reduce((prev, curr) => curr.depth > prev.depth ? curr : prev, genesis)
+  return [...Object.values(chainData)].reduce((prev, curr) => curr.height > prev.height ? curr : prev, genesis)
 }
 
 setInterval(async () => {
@@ -40,7 +41,9 @@ setInterval(async () => {
       data[id] = chainData[id].toObject()
     }
     try {
-      await writeFile(chainFile, JSON.stringify(data))
+      await writeFile(chainFile,
+        JSON.stringify(data, null, process.env.NODE_ENV === 'development' ? 2 : 0)
+      )
     } catch {
       console.log('[ERR] Cannot write data file')
     }

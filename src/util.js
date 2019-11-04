@@ -12,13 +12,12 @@ export function hash (...data) {
 export async function generateKeyPair () {
   return await genKeyPair('rsa', {
     modulusLength: 2048,
-    publicKeyEncoding: {
-      type: 'spki',
-      format: 'pem',
-    },
-    privateKeyEncoding: {
-      type: 'pkcs8',
-      format: 'pem',
-    },
+  })
+}
+
+export function exportKey (key) {
+  return key.export({
+    format: 'pem',
+    type: key.type === 'public' ? 'spki' : 'pkcs8',
   })
 }
