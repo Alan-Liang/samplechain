@@ -7,14 +7,13 @@ import fetch from 'node-fetch'
 import { account } from './account'
 import { exportKey } from './util'
 import { start as startMining } from './miner'
+import { fePort, centralPort, centralInterval } from './consts'
+import { chainData } from './chain'
 
-startMining(20*10)
+startMining(10)
 
-let central, remotes, timeoutId
-const port = 34991
-const apiPort = 34992
-const centralPort = 34993
-const centralDelay = 10 * 1000 // 10s
+export let central, remotes = []
+let intervalId = null
 
 const app = new Koa()
 const router = new Router()
@@ -27,12 +26,18 @@ render(app, {
 
 const setupCentral = async () => {
   await updateCentral()
-  timeoutId = setInterval(updateCentral, centralDelay)
+  intervalId = setInterval(updateCentral, centralInterval)
 }
 
 const updateCentral = async () => {
-  await fetch(new URL('/join', central)).then(res => res.json())
-  remotes = await fetch(new URL('/remotes', central)).then(res => res.json())
+  try {
+    await fetch(new URL('/join', central)).then(res => res.json())
+    remotes = await fetch(new URL('/remotes', central)).then(res => res.json())
+  } catch (e) {
+    console.log('[ERROR] fetching from central: ' + e)
+    central = null
+    clearInterval(intervalId)
+  }
 }
 
 router.get('/', async ctx => {
@@ -66,10 +71,19 @@ router.get('/stats', async ctx => {
     title: 'Stats',
     remotes,
     account: exportKey(account.pub),
+    chainData,
+  })
+})
+
+router.get('/block/:id', async ctx => {
+  await ctx.render('block', {
+    title: `Block #${ctx.params.id}`,
+    block: chainData[ctx.params.id].toObject(),
   })
 })
 
 app.use(logger())
 app.use(router.routes()).use(router.allowedMethods())
 
-app.listen(port)
+app.listen(fePort, '127.0.0.1')
+console.log(`[INFO] FE server starting on http://localhost:${fePort}/`)

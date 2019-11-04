@@ -10,15 +10,8 @@ const router = new Router()
 
 let remotes = []
 
-router.get('/', ctx => {
-  ctx.body = 'Hello. This port is not intended to be used by humans.'
-})
-
-router.get('/status', ctx => {
-  ctx.body = JSON.stringify({
-    status: 0,
-  })
-})
+router.get('/', ctx => ctx.body = 'Hello. This port is not intended to be used by humans.')
+router.get('/status', ctx => ctx.body = { status: 0 })
 
 router.get('/join', ctx => {
   if(!remotes.map(r => r.ip).includes(ctx.ip)) {
@@ -30,13 +23,11 @@ router.get('/join', ctx => {
   } else {
     remotes.find(r => r.ip === ctx.ip).updateTime = Date.now()
   }
-  ctx.body = JSON.stringify({
-    status: 0,
-  })
+  ctx.body = { status: 0 }
 })
 
 router.get('/remotes', ctx => {
-  ctx.body = JSON.stringify(remotes.map(r => r.ip).filter(r => r !== ctx.ip))
+  ctx.body = remotes.map(r => r.ip).filter(r => r !== ctx.ip)
 })
 
 setInterval(() => {

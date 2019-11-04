@@ -5,11 +5,11 @@ import Block, { genesis } from './block'
 import { readFileSync, writeFile as writeFileCb } from 'fs'
 import { promisify } from 'util'
 import assert from 'assert'
+import { updateInterval } from './consts'
 
 const writeFile = promisify(writeFileCb)
 
 let dataChanged = false, updating = false
-const updateInterval = 1000 // 1s
 const chainFile = 'chain.json'
 
 try {

@@ -1,0 +1,30 @@
+<h3>Block #<%= block.id %><% if(block.isGenesis) { %> (Genesis)<% } %></h3>
+
+<table>
+  <tbody>
+    <tr>
+      <td>id</td>
+      <td><%= block.id %></td>
+    </tr>
+    <tr>
+      <td>prev</td>
+      <td><a href="/block/<%= block.prev %>"><%= block.prev %></a></td>
+    </tr>
+    <tr>
+      <td>height</td>
+      <td><%= block.height %></td>
+    </tr>
+    <tr>
+      <td>data</td>
+      <td><code><pre><%= JSON.stringify(block.data, null, 2) %></pre></code></td>
+    </tr>
+    <tr>
+      <td>nonce</td>
+      <td><%= block.nonce %></td>
+    </tr>
+    <tr>
+      <td>account</td>
+      <td><code><pre><%= block.account %></pre></code></td>
+    </tr>
+  </tbody>
+</table>

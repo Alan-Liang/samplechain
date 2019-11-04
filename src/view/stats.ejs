@@ -1,7 +1,16 @@
+<h3>Endpoinds:</h3>
 <ul>
+  <li>Local</li>
   <% remotes.forEach(remote => { %>
     <li><%= remote %></li>
   <% }) %>
 </ul>
-
+<h3>Account:</h3>
 <code><pre><%= account %></pre></code>
+<h3>Blocks:</h3>
+<ul>
+  <% const chainIds = Object.keys(chainData).reverse() %>
+  <% for (let id of chainIds) { %>
+    <li><a href="/block/<%= id %>"><%= id %></a></li>
+  <% } %>
+</ul>
