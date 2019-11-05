@@ -10,7 +10,10 @@ export function start (hashesPerSec) {
   intervalId = setInterval(() => {
     for(let _ of new Array(hashesPerSec)) {
       const block = tryMine()
-      if(block) addBlock(block)
+      if(block) {
+        addBlock(block)
+        console.log('[INFO] Discovered block #' + block.id)
+      }
     }
   }, 1000)
 }

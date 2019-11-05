@@ -1,7 +1,8 @@
 import Koa from 'koa'
 import Router from '@koa/router'
 import fetch from 'node-fetch'
-import { apiPort, fePort, syncInterval, apiHost } from './consts'
+import shuffle from 'fast-shuffle'
+import { apiPort, fePort, syncInterval, apiHost, isDev } from './consts'
 import { chainData, addBlock } from './chain'
 import { remotes } from './fe-server'
 import Block from './block'
@@ -20,10 +21,18 @@ router.post('/tx', ctx => {
 })
 
 setInterval(async () => {
-  for (let remote of remotes) {
+  let remotesUsed = remotes
+  if(remotes.length > 3) remotesUsed = shuffle(remotes).slice(0, 3)
+  for (let remote of remotesUsed) {
     const remoteBase = new URL('http://localhost')
     remoteBase.hostname = remote
     remoteBase.port = apiPort
+    if (isDev) {
+      if (Number(remote)) {
+        remoteBase.hostname = '127.0.0.1'
+        remoteBase.port = Number(remote)
+      }
+    }
     try {
       const blocks = await fetch(new URL('/blocks', remoteBase)).then(res => res.json())
       for (let blockId of blocks) {

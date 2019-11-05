@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
-    "start:dev": "NODE_ENV=development node .",
+    "start:dev": "NODE_ENV=development supervisor .",
     "central": "node src/central/index",
     "central:dev": "NODE_ENV=development node src/central/index"
   },
@@ -17,6 +17,7 @@
     "@koa/router": "^8.0.2",
     "ejs": "^2.7.1",
     "esm": "^3.2.25",
+    "fast-shuffle": "^1.0.5",
     "koa": "^2.11.0",
     "koa-ejs": "^4.2.0",
     "koa-logger": "^3.2.1",

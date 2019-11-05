@@ -7,7 +7,7 @@ import fetch from 'node-fetch'
 import { account } from './account'
 import { exportKey } from './util'
 import { start as startMining } from './miner'
-import { fePort, centralPort, centralInterval } from './consts'
+import { fePort, centralPort, centralInterval, isDev, apiPort } from './consts'
 import { chainData } from './chain'
 
 startMining(10)
@@ -32,6 +32,7 @@ const setupCentral = async () => {
 const updateCentral = async () => {
   try {
     await fetch(new URL('/join', central)).then(res => res.json())
+    if (isDev && apiPort !== 34992) await fetch(new URL('/join/' + apiPort, central)).then(res => res.json())
     remotes = await fetch(new URL('/remotes', central)).then(res => res.json())
   } catch (e) {
     console.log('[ERROR] fetching from central: ' + e)
@@ -85,5 +86,10 @@ router.get('/block/:id', async ctx => {
 app.use(logger())
 app.use(router.routes()).use(router.allowedMethods())
 
-app.listen(fePort, '127.0.0.1')
-console.log(`[INFO] FE server starting on http://localhost:${fePort}/`)
+if (!isDev) {
+  app.listen(fePort, '127.0.0.1')
+  console.log(`[INFO] FE server starting on http://localhost:${fePort}/`)
+} else {
+  central = new URL('http://127.0.0.1:34993/')
+  setupCentral()
+}
