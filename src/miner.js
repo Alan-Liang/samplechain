@@ -3,16 +3,25 @@ import { hash, exportKey } from './util'
 import { difficulty, getLastBlock, addBlock } from './chain'
 import Block from './block'
 import { account as defaultAccount } from './account'
+import { txPerBlock } from './transaction'
+
+export const txQueue = []
 
 let intervalId
 
 export function start (hashesPerSec) {
   intervalId = setInterval(() => {
-    for(let _ of new Array(hashesPerSec)) {
+    for (let _ of new Array(hashesPerSec)) {
       const block = tryMine()
-      if(block) {
-        addBlock(block)
+      if (block) {
+        try {
+          addBlock(block)
+        } catch (e) {
+          console.log('[ERROR] adding block: ' + e)
+          continue
+        }
         console.log('[INFO] Discovered block #' + block.id)
+        txQueue.splice(0, txPerBlock)
       }
     }
   }, 1000)
@@ -21,8 +30,8 @@ export function stop () {
   clearInterval(intervalId)
 }
 
-export function tryMine (account = defaultAccount, data = [], lastBlock = getLastBlock()) {
-  if(typeof account !== 'string') {
+export function tryMine (data = txQueue.slice(0, txPerBlock), account = defaultAccount, lastBlock = getLastBlock()) {
+  if (typeof account !== 'string') {
     account = account.pub || account
     account = exportKey(account)
   }

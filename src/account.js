@@ -53,6 +53,6 @@ try {
   console.log('[INFO] Account file read failed, using new: ' + e)
   ;(async () => {
     account = await Account.generate()
-    await writeFile(exportKey(account.priv))
+    await writeFile('private.pem', exportKey(account.priv))
   })()
 }

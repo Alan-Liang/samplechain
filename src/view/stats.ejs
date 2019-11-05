@@ -5,6 +5,13 @@
     <li><%= remote %></li>
   <% }) %>
 </ul>
+<h3>Usable Transactions: <%= usableTxLength %></h3>
+<% if (usableTxLength > 0) { %>
+  <form action="/send-transaction">
+    <input name="data">
+    <input type="submit" value="send">
+  </form>
+<% } %>
 <h3>Account:</h3>
 <code><pre><%= account %></pre></code>
 <h3>Blocks:</h3>

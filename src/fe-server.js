@@ -6,9 +6,11 @@ import path from 'path'
 import fetch from 'node-fetch'
 import { account } from './account'
 import { exportKey } from './util'
-import { start as startMining } from './miner'
+import { start as startMining, txQueue } from './miner'
 import { fePort, centralPort, centralInterval, isDev, apiPort } from './consts'
-import { chainData } from './chain'
+import { chainData, getUsableTx } from './chain'
+import Transaction, { charPerTx } from './transaction'
+import { useRemotes } from './api-server'
 
 startMining(10)
 
@@ -73,6 +75,7 @@ router.get('/stats', async ctx => {
     remotes,
     account: exportKey(account.pub),
     chainData,
+    usableTxLength: getUsableTx().length,
   })
 })
 
@@ -81,6 +84,32 @@ router.get('/block/:id', async ctx => {
     title: `Block #${ctx.params.id}`,
     block: chainData[ctx.params.id].toObject(),
   })
+})
+
+router.get('/send-transaction', async ctx => {
+  const data = ctx.query.data
+  if (typeof data !== 'string' || data.length === 0 || Buffer.from(data).length > charPerTx) {
+    console.log(data)
+    return ctx.redirect('/stats')
+  }
+  const { block, txCount } = getUsableTx()[0]
+  const tx = Transaction.create({ blockId: block.id, txCount, data })
+  txQueue.push(tx)
+  const txStr = JSON.stringify(tx.toObject())
+  await useRemotes(async remoteBase => {
+    try {
+      await fetch(new URL('/tx', remoteBase), {
+        method: 'post',
+        body: txStr,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(res => res.json())
+    } catch (e) {
+      console.log('[ERROR] sending tx to remote: ' + e)
+    }
+  })
+  ctx.redirect('/stats')
 })
 
 app.use(logger())
