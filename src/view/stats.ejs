@@ -1,3 +1,16 @@
+<h3>Messages:</h3>
+<ul>
+  <% for (let [ { data, address, account }, id ] of longestChain.slice(5).flatMap(block => block.data.map(tx => [ tx.toShowObject(), block.id ]))) { %>
+    <li><a href="/account/<%- encodeURIComponent(account) %>"><%= address %></a>: <a href="/block/<%= id %>"><%= data %></a></li>
+  <% } %>
+</ul>
+<h3>Usable Transactions: <%= usableTxLength %></h3>
+<% if (usableTxLength > 0) { %>
+  <form action="/send-transaction">
+    <input name="data">
+    <input type="submit" value="Try to send">
+  </form>
+<% } %>
 <h3>Endpoinds:</h3>
 <ul>
   <li>Local</li>
@@ -5,15 +18,15 @@
     <li><%= remote %></li>
   <% }) %>
 </ul>
-<h3>Usable Transactions: <%= usableTxLength %></h3>
-<% if (usableTxLength > 0) { %>
-  <form action="/send-transaction">
-    <input name="data">
-    <input type="submit" value="send">
-  </form>
-<% } %>
+<h3>Address: <a href="/account/<%- encodeURIComponent(account) %>"><%= address %></a></h3>
 <h3>Account:</h3>
 <code><pre><%= account %></pre></code>
+<h3>Longest Chain:</h3>
+<ul>
+  <% for (let { id } of longestChain) { %>
+    <li><a href="/block/<%= id %>"><%= id %></a></li>
+  <% } %>
+</ul>
 <h3>Blocks:</h3>
 <ul>
   <% const chainIds = Object.keys(chainData).reverse() %>

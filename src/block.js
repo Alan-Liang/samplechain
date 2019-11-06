@@ -1,8 +1,9 @@
-import { hash } from './util'
+import { hash, addressFromKey } from './util'
 import { readFileSync } from 'fs'
 import Transaction from './transaction'
 import assert from 'assert'
-import { chainData, difficulty } from './chain'
+import { chainData } from './chain'
+import { difficulty } from './consts'
 
 export default class Block {
   constructor (options) {
@@ -30,10 +31,17 @@ export default class Block {
   }
 
   toObject () {
-    const obj = {}
+    const obj = Object.create(null)
     ;['prev', 'account', 'nonce', 'id', 'height'].forEach(prop => obj[prop] = this[prop])
     obj.data = this.data.map(tx => tx.toObject())
     if(this.isGenesis) obj.isGenesis = this.isGenesis
+    return obj
+  }
+
+  toShowObject () {
+    const obj = this.toObject()
+    obj.data = this.data.map(tx => tx.toShowObject())
+    obj.address = addressFromKey(this.account)
     return obj
   }
 }

@@ -3,7 +3,7 @@ import Router from '@koa/router'
 import logger from 'koa-logger'
 
 const port = 34993
-const maxAllowance = 30 * 1000 // 30s
+const maxAllowance = 20 * 1000 // 20s
 
 const app = new Koa()
 const router = new Router()

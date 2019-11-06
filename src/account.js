@@ -35,7 +35,7 @@ export default class Account {
     const verify = createVerify('md5')
     for(let d of data) verify.update(d)
     verify.end()
-    return verify.verify(this.pub, sign)
+    return verify.verify(this.pub, sign, 'hex')
   }
 
   static async generate () {

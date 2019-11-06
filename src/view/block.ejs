@@ -7,6 +7,10 @@
       <td><%= block.id %></td>
     </tr>
     <tr>
+      <td>address</td>
+      <td><a href="/account/<%- encodeURIComponent(block.account) %>"><%= block.address %></a></td>
+    </tr>
+    <tr>
       <td>prev</td>
       <td><a href="/block/<%= block.prev %>"><%= block.prev %></a></td>
     </tr>

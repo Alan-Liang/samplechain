@@ -1,17 +1,17 @@
 import { randomBytes } from 'crypto'
 import { hash, exportKey } from './util'
-import { difficulty, getLastBlock, addBlock } from './chain'
+import { getLastBlock, addBlock } from './chain'
 import Block from './block'
 import { account as defaultAccount } from './account'
-import { txPerBlock } from './transaction'
+import { hashesPerSec as hashesPerSecDefault, difficulty, txPerBlock } from './consts'
 
 export const txQueue = []
 
 let intervalId
 
-export function start (hashesPerSec) {
+export function start (hashesPerSec = hashesPerSecDefault) {
   intervalId = setInterval(() => {
-    for (let _ of new Array(hashesPerSec)) {
+    for (let _ of Array(hashesPerSec)) {
       const block = tryMine()
       if (block) {
         try {
@@ -48,3 +48,5 @@ export function tryMine (data = txQueue.slice(0, txPerBlock), account = defaultA
   }
   return null
 }
+
+start()

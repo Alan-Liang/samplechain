@@ -6,3 +6,12 @@ export const centralInterval = 10 * 1000 // 10s
 export const updateInterval = 1000 // 1s
 export const apiHost = process.env.API_HOST || '0.0.0.0'
 export const isDev = process.env.NODE_ENV === 'development'
+export const hashesPerSec = parseInt(process.env.HASHES_PER_SEC) || 10
+export const difficulty = 0x002fffffffffffffffffffffffffffffn
+export const txPerBlock = 4
+export const charPerTx = 16
+
+if (isDev) {
+  const log = console.log
+  console.log = (...args) => log(apiPort, ...args)
+}

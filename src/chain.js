@@ -1,14 +1,13 @@
-export const difficulty = 0x002fffffffffffffffffffffffffffffn
 export let chainData
 
 import Block, { genesis } from './block'
 import { readFileSync, writeFile as writeFileCb } from 'fs'
 import { promisify } from 'util'
 import assert from 'assert'
-import { updateInterval } from './consts'
+import { updateInterval, txPerBlock } from './consts'
 import Account, { account as defaultAccount } from './account'
 import { exportKey, hash } from './util'
-import Transaction, { txPerBlock } from './transaction'
+import Transaction from './transaction'
 import { txQueue } from './miner'
 
 const writeFile = promisify(writeFileCb)
@@ -28,19 +27,24 @@ export function addBlock (block) {
   assert(block instanceof Block)
   assert(!block.isGenesis)
   assert(block.validate())
-  assert(block.data.every(tx => tx.validateNew()))
+  assert(block.data.every(tx => tx.validateNew() || txQueue.map(tx => tx.id).includes(tx.id)))
   assert(block.data.every((tx, i) => block.data.every((tx1, j) => i === j || tx1.id !== tx.id)))
   chainData[block.id] = block
+  for (let tx of block.data) {
+    const i = txQueue.map(tx => tx.id).indexOf(tx.id)
+    if (i < 0) continue
+    txQueue.splice(i, 1)
+  }
   dataChanged = true
 }
 
 export function getLastBlock () {
-  return [...Object.values(chainData)].reduce((prev, curr) => curr.height > prev.height ? curr : prev, genesis)
+  return Object.values(chainData).reduce((prev, curr) => curr.height > prev.height ? curr : prev, genesis)
 }
 
 export function getUsableTx (account = defaultAccount) {
   if (account instanceof Account) account = exportKey(account.pub)
-  return [...Object.values(chainData)].filter(block => block.account === account).flatMap(block => {
+  return Object.values(chainData).filter(block => block.account === account).flatMap(block => {
     const usables = []
     for (let txCount of Array(txPerBlock).keys()) {
       const id = hash(block.id, String(txCount))
@@ -48,6 +52,17 @@ export function getUsableTx (account = defaultAccount) {
     }
     return usables
   })
+}
+
+export function getLongestChain () {
+  return [...function* () {
+    let last = getLastBlock()
+    while (!last.isGenesis) {
+      yield last
+      last = chainData[last.prev]
+    }
+    yield last
+  }()]
 }
 
 setInterval(async () => {

@@ -5,14 +5,11 @@ import logger from 'koa-logger'
 import path from 'path'
 import fetch from 'node-fetch'
 import { account } from './account'
-import { exportKey } from './util'
-import { start as startMining, txQueue } from './miner'
-import { fePort, centralPort, centralInterval, isDev, apiPort } from './consts'
-import { chainData, getUsableTx } from './chain'
-import Transaction, { charPerTx } from './transaction'
-import { useRemotes } from './api-server'
-
-startMining(10)
+import { exportKey, useRemotes, addressFromKey } from './util'
+import { txQueue } from './miner'
+import { fePort, centralPort, centralInterval, isDev, apiPort, charPerTx } from './consts'
+import { chainData, getUsableTx, getLongestChain } from './chain'
+import Transaction from './transaction'
 
 export let central, remotes = []
 let intervalId = null
@@ -70,27 +67,42 @@ router.get('/set-central', async ctx => {
 
 router.get('/stats', async ctx => {
   if(!central) return ctx.redirect('/')
+  const key = exportKey(account.pub)
   await ctx.render('stats', {
     title: 'Stats',
     remotes,
-    account: exportKey(account.pub),
+    account: key,
+    address: addressFromKey(key),
     chainData,
     usableTxLength: getUsableTx().length,
+    longestChain: getLongestChain(),
+    useRefresh: true,
   })
 })
 
 router.get('/block/:id', async ctx => {
   await ctx.render('block', {
     title: `Block #${ctx.params.id}`,
-    block: chainData[ctx.params.id].toObject(),
+    block: chainData[ctx.params.id].toShowObject(),
+  })
+})
+
+router.get('/account/:account', async ctx => {
+  const account = ctx.params.account
+  const address = addressFromKey(account)
+  await ctx.render('account', {
+    title: `Address ${address}`,
+    account,
+    address,
+    blocks: Object.values(chainData).filter(block => block.account === account),
+    longestChain: getLongestChain(),
   })
 })
 
 router.get('/send-transaction', async ctx => {
   const data = ctx.query.data
   if (typeof data !== 'string' || data.length === 0 || Buffer.from(data).length > charPerTx) {
-    console.log(data)
-    return ctx.redirect('/stats')
+    return ctx.body = 'Message too long, maxlength = 16 bytes'
   }
   const { block, txCount } = getUsableTx()[0]
   const tx = Transaction.create({ blockId: block.id, txCount, data })
@@ -98,13 +110,14 @@ router.get('/send-transaction', async ctx => {
   const txStr = JSON.stringify(tx.toObject())
   await useRemotes(async remoteBase => {
     try {
-      await fetch(new URL('/tx', remoteBase), {
+      const res = await fetch(new URL('/tx', remoteBase), {
         method: 'post',
         body: txStr,
         headers: {
           'Content-Type': 'application/json',
         },
       }).then(res => res.json())
+      if(res.status !== 0) throw res.message || JSON.stringify(res)
     } catch (e) {
       console.log('[ERROR] sending tx to remote: ' + e)
     }

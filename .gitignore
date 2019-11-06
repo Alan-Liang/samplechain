@@ -2,6 +2,7 @@ public.pem
 private.pem
 genesis.json
 chain.json
+*.run
 
 # Logs
 logs

@@ -1,0 +1,20 @@
+<h2>Address <%= address %></h2>
+<h3>Messages:</h3>
+<ul>
+  <% const txs = longestChain
+    .slice(5)
+    .flatMap(block => block.data
+      .map(tx => [ tx.toShowObject(), block.id ])
+      .filter(([ tx ]) => tx.account === account)) %>
+  <% for (let [ { data }, id ] of txs) { %>
+    <li><a href="/block/<%= id %>"><%= data %></a></li>
+  <% } %>
+</ul>
+<h3>Public key:</h3>
+<code><pre><%= account %></pre></code>
+<h3>Blocks:</h3>
+<ul>
+  <% for (let { id } of blocks) { %>
+    <li><a href="/block/<%= id %>"><%= id %></a></li>
+  <% } %>
+</ul>

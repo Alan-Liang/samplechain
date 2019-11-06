@@ -1,9 +1,7 @@
-import { chainData } from './chain'
-import { hash } from './util'
-import { account as defaultAccount } from './account'
-
-export const txPerBlock = 4
-export const charPerTx = 16
+import { chainData, getLongestChain } from './chain'
+import { hash, addressFromKey } from './util'
+import Account, { account as defaultAccount } from './account'
+import { txPerBlock } from './consts'
 
 export default class Transaction {
   constructor ({ blockId, txCount, data, sign, id }) {
@@ -18,19 +16,25 @@ export default class Transaction {
   }
 
   validate () {
-    // TODO verify signature
+    if(!(new Account(chainData[this.blockId].account).verify(this.sign, this.id, this.data))) return false
     if (this.txCount >= txPerBlock) return false
     return true
   }
 
   validateNew () {
-    // TODO replace with the longest chain
-    return !([...Object.values(chainData)].some(block => block.data.some(tx => tx.id === this.id)))
+    return !(getLongestChain().some(block => block.data.some(tx => tx.id === this.id)))
   }
 
   toObject () {
     const obj = Object.create(null)
     for (let i of ['blockId', 'txCount', 'data', 'sign']) obj[i] = this[i]
+    return obj
+  }
+
+  toShowObject () {
+    const obj = this.toObject()
+    obj.account = chainData[this.blockId].account
+    obj.address = addressFromKey(obj.account)
     return obj
   }
 
