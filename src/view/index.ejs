@@ -1,4 +1,16 @@
 <form action="/set-central">
-  <input name="central">
-  <input type="submit">
+  <div class="mdc-text-field mdc-text-field--outlined" data-text-field>
+    <input type="text" id="central" name="central" required class="mdc-text-field__input">
+    <div class="mdc-notched-outline">
+      <div class="mdc-notched-outline__leading"></div>
+      <div class="mdc-notched-outline__notch">
+        <label for="central" class="mdc-floating-label">Central Server IP</label>
+      </div>
+      <div class="mdc-notched-outline__trailing"></div>
+    </div>
+  </div>
+  <button class="mdc-button mdc-button--raised" data-ripple type="submit">
+    <div class="mdc-button__ripple"></div>
+    <span class="mdc-button__label">Go</span>
+  </button>
 </form>

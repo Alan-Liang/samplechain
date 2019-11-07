@@ -1,0 +1,9 @@
+<% if (typeof simple === 'undefined') simple = false %>
+<% if (!simple) { %> <li> <% } %>
+  <a href="/block/<%= block.id %>">#<%= block.id %></a>
+  @ <%= block.height %>
+  <% if (!simple) { %> (
+    <a href="/account/<%- encodeURIComponent(block.account) %>"><%= block.address %></a>
+    <% if (block.data.length > 0) { %>, messages: <%= block.data.length %><% } %>
+  ) <% } %>
+<% if (!simple) { %> </li> <% } %>

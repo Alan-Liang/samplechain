@@ -1,12 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <% if (typeof useRefresh !== 'undefined' && useRefresh) { %><meta http-equiv="refresh" content="20"><% } %>
+  <% if (typeof useRefresh !== 'undefined' && useRefresh) { %>
+  <meta http-equiv="refresh" content="16"><% } %>
   <title><%= title %> | Sample Blockchain</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@material/button@4.0.0/dist/mdc.button.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@material/textfield@4.0.0/dist/mdc.textfield.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@material/ripple@4.0.0/dist/mdc.ripple.min.css">
+  <style>
+    body {
+      --mdc-theme-primary: #002d4d;
+    }
+    a {
+      color: #0000ee;
+      text-decoration: none;
+    }
+    a:visited {
+      color: #8a2be2;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    ul {
+      list-style: '- ';
+      padding-left: 1em;
+    }
+    .mdc-button {
+      text-transform: none;
+    }
+  </style>
 </head>
+
 <body>
   <%- body %>
+  <script src="https://cdn.jsdelivr.net/npm/@material/textfield@4.0.0/dist/mdc.textfield.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@material/ripple@4.0.0/dist/mdc.ripple.min.js"></script>
+  <script>
+  var tfs = document.querySelectorAll('[data-text-field]')
+  for (var i = 0; i < tfs.length; i++) {
+    mdc.textfield.MDCTextField.attachTo(tfs[i])
+  }
+  var ripples = document.querySelectorAll('[data-ripple]')
+  for (var i = 0; i < ripples.length; i++) {
+    mdc.ripple.MDCRipple.attachTo(ripples[i])
+  }
+  </script>
 </body>
+
 </html>

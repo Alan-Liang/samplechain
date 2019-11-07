@@ -1,36 +1,71 @@
-<h3>Messages:</h3>
-<ul>
-  <% for (let [ { data, address, account }, id ] of longestChain.slice(5).flatMap(block => block.data.map(tx => [ tx.toShowObject(), block.id ]))) { %>
-    <li><a href="/account/<%- encodeURIComponent(account) %>"><%= address %></a>: <a href="/block/<%= id %>"><%= data %></a></li>
-  <% } %>
+<ul id="top">
+  <li><a href="#address">Address</a></li>
+  <li><a href="#account">Account key</a></li>
+  <li><a href="#tx">Usable Transactions</a></li>
+  <li><a href="#messages">Messages</a></li>
+  <li><a href="#endpoints">Endpoints</a></li>
+  <li><a href="#txqueue">Transaction Queue</a></li>
+  <li><a href="#chain">Longest Chain</a></li>
+  <li><a href="#blocks">Blocks</a></li>
 </ul>
-<h3>Usable Transactions: <%= usableTxLength %></h3>
+
+<h3 id="address"><a href="#top">↑</a>Address: <a href="/account/<%- encodeURIComponent(account) %>"><%= address %></a></h3>
+<h3 id="account"><a href="#top">↑</a>Account key:</h3>
+<code><pre><%= account %></pre></code>
+<h3 id="tx"><a href="#top">↑</a>Usable Transactions: <%= usableTxLength %></h3>
 <% if (usableTxLength > 0) { %>
   <form action="/send-transaction">
-    <input name="data">
-    <input type="submit" value="Try to send">
+    <div class="mdc-text-field mdc-text-field--outlined" data-text-field>
+      <input type="text" id="data" name="data" maxlength="16" required class="mdc-text-field__input">
+      <div class="mdc-notched-outline">
+        <div class="mdc-notched-outline__leading"></div>
+        <div class="mdc-notched-outline__notch">
+          <label for="central" class="mdc-floating-label">Things to say...</label>
+        </div>
+        <div class="mdc-notched-outline__trailing"></div>
+      </div>
+    </div>
+    <button class="mdc-button mdc-button--raised" data-ripple type="submit">
+      <div class="mdc-button__ripple"></div>
+      <span class="mdc-button__label">Try to send</span>
+    </button>
   </form>
 <% } %>
-<h3>Endpoinds:</h3>
+<h3 id="messages"><a href="#top">↑</a>Messages:</h3>
+<ul>
+  <% for (let [ { data, address, account }, id ] of longestChain.slice(5).flatMap(block => block.data.map(tx => [ tx.toShowObject(), block.id ]))) { %>
+    <li><a href="/account/<%- encodeURIComponent(account) %>"><%= address %></a>: <a href="/block/<%= id %>"><%= data %></a> @ <a href="/block/<%= id %>"><%= id %></a></li>
+  <% } %>
+</ul>
+<h3 id="endpoints"><a href="#top">↑</a>Endpoints:</h3>
 <ul>
   <li>Local</li>
   <% remotes.forEach(remote => { %>
     <li><%= remote %></li>
   <% }) %>
 </ul>
-<h3>Address: <a href="/account/<%- encodeURIComponent(account) %>"><%= address %></a></h3>
-<h3>Account:</h3>
-<code><pre><%= account %></pre></code>
-<h3>Longest Chain:</h3>
+
+<h3 id="txqueue"><a href="#top">↑</a>Transaction Queue:</h3>
 <ul>
-  <% for (let { id } of longestChain) { %>
-    <li><a href="/block/<%= id %>"><%= id %></a></li>
+  <% for (let tx of txQueue.map(tx => tx.toShowObject())) { %>
+    <li>
+      <a href="/account/<%- encodeURIComponent(tx.account) %>"><%= tx.address %></a>:
+      <%= tx.data %>
+      ( using <%- await include('./block-item', { block: chainData[tx.blockId], simple: true }) %> )
+    </li>
   <% } %>
 </ul>
-<h3>Blocks:</h3>
+
+<h3 id="chain"><a href="#top">↑</a>Longest Chain:</h3>
 <ul>
-  <% const chainIds = Object.keys(chainData).reverse() %>
-  <% for (let id of chainIds) { %>
-    <li><a href="/block/<%= id %>"><%= id %></a></li>
+  <% for (let block of longestChain.map(block => block.toShowObject())) { %>
+    <%- await include('./block-item', { block }) %>
+  <% } %>
+</ul>
+<h3 id="blocks"><a href="#top">↑</a>Blocks:</h3>
+<ul>
+  <% const blocks = Object.values(chainData).reverse().map(block => block.toShowObject()) %>
+  <% for (let block of blocks) { %>
+    <%- await include('./block-item', { block }) %>
   <% } %>
 </ul>

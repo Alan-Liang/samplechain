@@ -77,6 +77,7 @@ router.get('/stats', async ctx => {
     usableTxLength: getUsableTx().length,
     longestChain: getLongestChain(),
     useRefresh: true,
+    txQueue,
   })
 })
 
