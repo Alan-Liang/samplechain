@@ -55,4 +55,5 @@ try {
     account = await Account.generate()
     await writeFile('private.pem', exportKey(account.priv))
   })()
+  account = { pub: { export () { return '' } } } // No reading from undefined
 }
