@@ -32,11 +32,19 @@
   </form>
 <% } %>
 <h3 id="messages"><a href="#top">↑</a>Messages:</h3>
+<h4>Pending</h4>
 <ul>
-  <% for (let [ { data, address, account }, id ] of longestChain.slice(5).flatMap(block => block.data.map(tx => [ tx.toShowObject(), block.id ]))) { %>
-    <li><a href="/account/<%- encodeURIComponent(account) %>"><%= address %></a>: <a href="/block/<%= id %>"><%= data %></a> @ <a href="/block/<%= id %>"><%= id %></a></li>
+  <% for (let [ { data, address, account }, id ] of longestChain.slice(0, 5).flatMap(block => block.data.map(tx => [ tx.toShowObject(), block.id ]))) { %>
+    <li><a href="/account/<%- encodeURIComponent(account) %>"><%= address %></a>: <a href="/block/<%= id %>"><%= data %></a> ( <%- await include('./block-item', { block: chainData[id], simple: true }) %> )</li>
   <% } %>
 </ul>
+<h4>In Chain</h4>
+<ul>
+  <% for (let [ { data, address, account }, id ] of longestChain.slice(5).flatMap(block => block.data.map(tx => [ tx.toShowObject(), block.id ]))) { %>
+    <li><a href="/account/<%- encodeURIComponent(account) %>"><%= address %></a>: <a href="/block/<%= id %>"><%= data %></a> ( <%- await include('./block-item', { block: chainData[id], simple: true }) %> )</li>
+  <% } %>
+</ul>
+
 <h3 id="endpoints"><a href="#top">↑</a>Endpoints:</h3>
 <ul>
   <li>Local</li>

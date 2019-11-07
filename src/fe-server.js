@@ -97,6 +97,7 @@ router.get('/account/:account', async ctx => {
     address,
     blocks: Object.values(chainData).filter(block => block.account === account),
     longestChain: getLongestChain(),
+    chainData,
   })
 })
 

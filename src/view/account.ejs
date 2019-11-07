@@ -1,5 +1,17 @@
 <h2>Address <%= address %></h2>
 <h3>Messages:</h3>
+<h4>Pending</h4>
+<ul>
+  <% const txsPending = longestChain
+    .slice(0, 5)
+    .flatMap(block => block.data
+      .map(tx => [ tx.toShowObject(), block.id ])
+      .filter(([ tx ]) => tx.account === account)) %>
+  <% for (let [ { data }, id ] of txsPending) { %>
+    <li><a href="/block/<%= id %>"><%= data %></a> ( <%- await include('./block-item', { block: chainData[id], simple: true }) %> )</li>
+  <% } %>
+</ul>
+<h4>In chain</h4>
 <ul>
   <% const txs = longestChain
     .slice(5)
@@ -7,7 +19,7 @@
       .map(tx => [ tx.toShowObject(), block.id ])
       .filter(([ tx ]) => tx.account === account)) %>
   <% for (let [ { data }, id ] of txs) { %>
-    <li><a href="/block/<%= id %>"><%= data %></a></li>
+    <li><a href="/block/<%= id %>"><%= data %></a> ( <%- await include('./block-item', { block: chainData[id], simple: true }) %> )</li>
   <% } %>
 </ul>
 <h3>Public key:</h3>
