@@ -22,6 +22,7 @@ router.post('/tx', bodyParser(), ctx => {
   const txObj = ctx.request.body
   try {
     const tx = new Transaction(txObj)
+    // TODO what if now block used is on the main chain while a new longer chain is developing?
     if (!tx.validateNew() || txQueue.some(tx1 => tx.id === tx1.id)) {
       return ctx.body = {
         status: 1,

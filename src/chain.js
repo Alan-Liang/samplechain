@@ -24,11 +24,12 @@ try {
 }
 
 export function addBlock (block) {
-  assert(block instanceof Block)
-  assert(!block.isGenesis)
-  assert(block.validate())
-  assert(block.data.every(tx => tx.validateNew() || txQueue.map(tx => tx.id).includes(tx.id)))
-  assert(block.data.every((tx, i) => block.data.every((tx1, j) => i === j || tx1.id !== tx.id)))
+  const wrongReason = 'Invalid block ' + block.id
+  assert(block instanceof Block, wrongReason)
+  assert(!block.isGenesis, wrongReason)
+  assert(block.validate(), wrongReason)
+  assert(block.data.every(tx => tx.validateNew(chainData[block.prev]) || txQueue.map(tx => tx.id).includes(tx.id)), wrongReason)
+  assert(block.data.every((tx, i) => block.data.every((tx1, j) => i === j || tx1.id !== tx.id)), wrongReason)
   chainData[block.id] = block
   for (let tx of block.data) {
     const i = txQueue.map(tx => tx.id).indexOf(tx.id)
@@ -54,9 +55,9 @@ export function getUsableTx (account = defaultAccount) {
   })
 }
 
-export function getLongestChain () {
+export function getLongestChain ( from = getLastBlock() ) {
   return [...function* () {
-    let last = getLastBlock()
+    let last = from
     while (!last.isGenesis) {
       yield last
       last = chainData[last.prev]

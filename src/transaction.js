@@ -1,4 +1,4 @@
-import { chainData, getLongestChain } from './chain'
+import { chainData, getLongestChain, getLastBlock } from './chain'
 import { hash, addressFromKey } from './util'
 import Account, { account as defaultAccount } from './account'
 import { txPerBlock } from './consts'
@@ -21,8 +21,8 @@ export default class Transaction {
     return true
   }
 
-  validateNew () {
-    return !(getLongestChain().some(block => block.data.some(tx => tx.id === this.id)))
+  validateNew ( from = getLastBlock() ) {
+    return !(getLongestChain(from).some(block => block.data.some(tx => tx.id === this.id)))
   }
 
   toObject () {
