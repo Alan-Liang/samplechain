@@ -1,2 +1,2 @@
-require('./fe-server')
-require('./api-server')
+import './fe-server'
+import './api-server'

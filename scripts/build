@@ -1,8 +1,9 @@
 #!/bin/bash
 rm -rf bin lib
-babel src --out-dir lib
+npx babel src --out-dir lib
 cp -r src/view lib
-pkg . --out-path bin
-gzip -k bin/samplechain-linux
-zip bin/samplechain-win.zip bin/samplechain-win.exe
-zip bin/samplechain-macos.zip bin/samplechain-macos
+npx pkg . --out-path bin
+cp genesis.json bin
+tar -zcvf bin/samplechain-linux.tgz bin/samplechain-linux bin/genesis.json
+zip bin/samplechain-win.zip bin/samplechain-win.exe bin/genesis.json
+zip bin/samplechain-macos.zip bin/samplechain-macos bin/genesis.json

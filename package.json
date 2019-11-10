@@ -49,6 +49,7 @@
     "koa-body": "^4.1.1",
     "koa-ejs": "^4.2.0",
     "koa-logger": "^3.2.1",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "pkg": "^4.4.0"
   }
 }
