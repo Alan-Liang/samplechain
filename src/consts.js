@@ -7,7 +7,7 @@ export const updateInterval = 1000 // 1s
 export const apiHost = process.env.API_HOST || '0.0.0.0'
 export const isDev = process.env.NODE_ENV === 'development'
 export const hashesPerSec = parseInt(process.env.HASHES_PER_SEC) || 10
-export const difficulty = 0x002fffffffffffffffffffffffffffffn
+export const difficulty = BigInt('0x002fffffffffffffffffffffffffffff')
 export const txPerBlock = 2
 export const charPerTx = 16
 

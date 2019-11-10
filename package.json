@@ -8,12 +8,39 @@
     "start": "node .",
     "start:dev": "NODE_ENV=development supervisor .",
     "central": "node src/central/index",
-    "central:dev": "NODE_ENV=development node src/central/index"
+    "central:dev": "NODE_ENV=development node src/central/index",
+    "build": "scripts/build"
   },
   "keywords": [],
+  "pkg": {
+    "scripts": [
+      "lib/**/*.js"
+    ],
+    "assets": [
+      "lib/view/**/*"
+    ]
+  },
+  "bin": {
+    "samplechain": "lib/pkg-index.js"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  },
   "author": "Alan-Liang",
   "license": "ISC",
   "dependencies": {
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/preset-env": "^7.7.1",
     "@koa/router": "^8.0.2",
     "ejs": "^2.7.1",
     "esm": "^3.2.25",

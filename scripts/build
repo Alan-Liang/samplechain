@@ -1,0 +1,8 @@
+#!/bin/bash
+rm -rf bin lib
+babel src --out-dir lib
+cp -r src/view lib
+pkg . --out-path bin
+gzip -k bin/samplechain-linux
+zip bin/samplechain-win.zip bin/samplechain-win.exe
+zip bin/samplechain-macos.zip bin/samplechain-macos
