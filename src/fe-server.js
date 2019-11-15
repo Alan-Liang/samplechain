@@ -121,7 +121,7 @@ router.get('/send-transaction', async ctx => {
       }).then(res => res.json())
       if(res.status !== 0) throw res.message || JSON.stringify(res)
     } catch (e) {
-      console.log('[ERROR] sending tx to remote: ' + e)
+      console.log('[WARN] error sending tx to remote: ' + e)
     }
   })
   ctx.redirect('/stats')

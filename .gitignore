@@ -1,6 +1,8 @@
 # Built files
 lib
 bin
+dist
+genesis-*.pem
 
 # Data files
 public.pem

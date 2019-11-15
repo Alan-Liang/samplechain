@@ -22,7 +22,6 @@ router.post('/tx', bodyParser(), ctx => {
   const txObj = ctx.request.body
   try {
     const tx = new Transaction(txObj)
-    // TODO what if now block used is on the main chain while a new longer chain is developing?
     if (!tx.validateNew() || txQueue.some(tx1 => tx.id === tx1.id)) {
       return ctx.body = {
         status: 1,
@@ -34,7 +33,11 @@ router.post('/tx', bodyParser(), ctx => {
       status: 0,
     }
   } catch (e) {
-    console.log('[ERROR] Error creating transaction: ' + e)
+    console.log('[WARN] Error creating transaction: ' + e)
+    ctx.body = {
+      status: 1,
+      message: e.toString(),
+    }
   }
 })
 
@@ -51,8 +54,15 @@ setInterval(async () => {
         blockObj.data = blockObj.data.map(txObj => new Transaction(txObj))
         addBlock(new Block(blockObj))
       }
+      for (let tx of txQueue) await fetch(new URL('/tx', remoteBase), {
+        method: 'post',
+        body: JSON.stringify(tx.toObject()),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(res => res.json())
     } catch (e) {
-      console.log('[ERROR] Sync error: ' + e)
+      console.log('[WARN] Sync error: ' + e)
     }
   })
 }, syncInterval)

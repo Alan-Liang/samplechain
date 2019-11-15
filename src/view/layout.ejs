@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <% if (typeof useRefresh !== 'undefined' && useRefresh) { %>
-  <meta http-equiv="refresh" content="16"><% } %>
+  <meta http-equiv="refresh" content="16">
+  <% } %>
   <title><%= title %> | Sample Blockchain</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@material/button@4.0.0/dist/mdc.button.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@material/textfield@4.0.0/dist/mdc.textfield.min.css">
@@ -31,11 +32,18 @@
     .mdc-button {
       text-transform: none;
     }
+    pre {
+      font-family: monospace;
+    }
   </style>
 </head>
 
 <body>
   <%- body %>
+  <p>
+    Samplechain by Alan-Liang | 
+    <a href="https://github.com/Alan-Liang/samplechain/">Source Code</a>
+  </p>
   <script src="https://cdn.jsdelivr.net/npm/@material/textfield@4.0.0/dist/mdc.textfield.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@material/ripple@4.0.0/dist/mdc.ripple.min.js"></script>
   <script>

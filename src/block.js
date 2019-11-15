@@ -12,7 +12,6 @@ export default class Block {
   }
 
   init () {
-    // TODO
     assert(this.isGenesis || chainData[this.prev], 'No previous block')
     if(!this.id) this.id = hash(this.prev, JSON.stringify(this.data), this.account, this.nonce)
     if(typeof this.height !== 'number') this.height = chainData[this.prev].height + 1
@@ -23,7 +22,6 @@ export default class Block {
   }
 
   validate () {
-    // TODO
     if(!this.isGenesis && !(BigInt('0x' + this.id) < difficulty)) return false
     if(!this.data.every(tx => tx instanceof Transaction)) return false
     if(!this.data.every(tx => tx.validate())) return false

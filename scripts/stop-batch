@@ -1,0 +1,5 @@
+#!/bin/bash
+for i in `seq 10001 10021`; do
+  kill -9 $(cat $i.run/pid)
+  rm $i.run/pid
+done

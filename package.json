@@ -7,9 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
     "start:dev": "NODE_ENV=development supervisor .",
+    "start:batch": "scripts/start-batch",
+    "stop:batch": "scripts/stop-batch",
     "central": "node src/central/index",
     "central:dev": "NODE_ENV=development node src/central/index",
-    "build": "scripts/build"
+    "build": "scripts/build",
+    "clean": "scripts/clean"
   },
   "keywords": [],
   "pkg": {
@@ -49,6 +52,7 @@
     "koa-body": "^4.1.1",
     "koa-ejs": "^4.2.0",
     "koa-logger": "^3.2.1",
+    "koa-static": "^5.0.0",
     "node-fetch": "^2.6.0",
     "pkg": "^4.4.0"
   }

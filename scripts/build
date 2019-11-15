@@ -1,9 +1,18 @@
 #!/bin/bash
-rm -rf bin lib
+echo "Cleaning files..."
+rm -rf bin dist lib
+echo; echo "Compiling source..."; echo
+echo "export const pkgVer = '$(npx pkg -v)'" > src/_pkg-ver.js
 npx babel src --out-dir lib
+rm src/_pkg-ver.js
 cp -r src/view lib
+echo; echo "Making binaries..."; echo
 npx pkg . --out-path bin
 cp genesis.json bin
-tar -zcvf bin/samplechain-linux.tgz bin/samplechain-linux bin/genesis.json
-zip bin/samplechain-win.zip bin/samplechain-win.exe bin/genesis.json
-zip bin/samplechain-macos.zip bin/samplechain-macos bin/genesis.json
+echo; echo "Packaging..."; echo
+mkdir dist
+cp genesis.json dist
+tar -zcvf dist/samplechain-linux.tgz bin/samplechain-linux bin/genesis.json
+zip dist/samplechain-win.zip bin/samplechain-win.exe bin/genesis.json
+zip dist/samplechain-macos.zip bin/samplechain-macos bin/genesis.json
+echo; echo "Done"

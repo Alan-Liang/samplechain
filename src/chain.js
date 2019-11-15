@@ -45,7 +45,7 @@ export function getLastBlock () {
 
 export function getUsableTx (account = defaultAccount) {
   if (account instanceof Account) account = exportKey(account.pub)
-  return Object.values(chainData).filter(block => block.account === account).flatMap(block => {
+  return getLongestChain().filter(block => block.account === account).flatMap(block => {
     const usables = []
     for (let txCount of Array(txPerBlock).keys()) {
       const id = hash(block.id, String(txCount))

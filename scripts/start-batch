@@ -1,0 +1,7 @@
+#!/bin/bash
+for i in `seq 10001 10021`; do
+  cd $i.run
+  API_PORT=$i NODE_ENV=development node .. &
+  echo $! > pid
+  cd ..
+done

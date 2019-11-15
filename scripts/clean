@@ -1,0 +1,7 @@
+#!/bin/bash
+rm -rf *.run
+rm chain.json
+for i in `seq 10001 10021`; do
+  mkdir $i.run
+  cp genesis.json $i.run
+done

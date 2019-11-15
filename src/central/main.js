@@ -1,6 +1,7 @@
 import Koa from 'koa'
 import Router from '@koa/router'
 import logger from 'koa-logger'
+import serve from 'koa-static'
 
 const port = 34993
 const maxAllowance = 20 * 1000 // 20s
@@ -10,7 +11,26 @@ const router = new Router()
 
 let remotes = []
 
-router.get('/', ctx => ctx.body = 'Hello. This port is not intended to be used by humans.')
+const downloadHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Downloads</title>
+</head>
+<body>
+  <ul>
+    <li><a href="/dist/samplechain-win.zip">Windows</a></li>
+    <li><a href="/dist/samplechain-macos.zip">Mac OS</a></li>
+    <li><a href="/dist/samplechain-linux.tgz">Linux</a></li>
+    <li><a href="https://github.com/Alan-Liang/samplechain/">Source code</a></li>
+  </ul>
+</body>
+</html>
+`
+
+router.get('/', ctx => ctx.body = downloadHtml)
 router.get('/status', ctx => ctx.body = { status: 0 })
 
 router.get('/join', ctx => {
@@ -43,6 +63,8 @@ router.get('/join/:port', ctx => {
 router.get('/remotes', ctx => {
   ctx.body = remotes.map(r => r.ip).filter(r => r !== ctx.ip)
 })
+
+router.get('/dist/:file', serve(__dirname + '/../..'))
 
 setInterval(() => {
   const now = Date.now()

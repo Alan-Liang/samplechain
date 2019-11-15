@@ -1,12 +1,11 @@
 require = require('esm')(module, { cjs: { dedefault: true } })
-const { generateKeyPair, exportKey } = require('../src/util')
+const { generateKeyPair, exportKey, hash } = require('../src/util')
 const { writeFileSync } = require('fs')
-const { hash } = require('../src/util')
 
 ;(async () => {
   const {publicKey, privateKey} = await generateKeyPair()
-  writeFileSync('public.pem', exportKey(publicKey))
-  writeFileSync('private.pem', exportKey(privateKey))
+  writeFileSync('genesis-public.pem', exportKey(publicKey))
+  writeFileSync('genesis-private.pem', exportKey(privateKey))
   const block = {
     prev: '',
     data: [],
