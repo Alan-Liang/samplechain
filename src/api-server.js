@@ -1,3 +1,5 @@
+/** @module api-server */
+
 import Koa from 'koa'
 import bodyParser from 'koa-body'
 import Router from '@koa/router'
@@ -15,9 +17,13 @@ const router = new Router()
 router.get('/', ctx => ctx.redirect(`http://localhost:${fePort}/`))
 router.get('/status', ctx => ctx.body = { status: 0 })
 
+// all block IDs
 router.get('/blocks', ctx => ctx.body = Object.keys(chainData))
+// a specific block
 router.get('/block/:id', ctx => ctx.body = chainData[ctx.params.id].toObject())
 
+// create a transaction
+// request body: see `Transaction#constructor`
 router.post('/tx', bodyParser(), ctx => {
   const txObj = ctx.request.body
   try {
@@ -41,6 +47,7 @@ router.post('/tx', bodyParser(), ctx => {
   }
 })
 
+// synchronize chain data
 setInterval(async () => {
   await useRemotes(async remoteBase => {
     try {

@@ -1,3 +1,4 @@
+// entrypoint of the packaged version
 import './fe-server'
 import './api-server'
 

@@ -33,6 +33,7 @@ const downloadHtml = `
 router.get('/', ctx => ctx.body = downloadHtml)
 router.get('/status', ctx => ctx.body = { status: 0 })
 
+// joins the network
 router.get('/join', ctx => {
   if(!remotes.map(r => r.ip).includes(ctx.ip)) {
     remotes.push({
@@ -60,12 +61,15 @@ router.get('/join/:port', ctx => {
   ctx.body = { status: 0 }
 })
 
+// gets all the endpoints
 router.get('/remotes', ctx => {
   ctx.body = remotes.map(r => r.ip).filter(r => r !== ctx.ip)
 })
 
+// distribute built files
 router.get('/dist/:file', serve(__dirname + '/../..'))
 
+// clean up dead endpoints
 setInterval(() => {
   const now = Date.now()
   remotes = remotes.filter(r => r.updateTime + maxAllowance > now)

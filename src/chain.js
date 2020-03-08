@@ -1,3 +1,9 @@
+/** @module chain */
+
+/**
+ * Current chain data.
+ * @type {Block[]}
+ */
 export let chainData
 
 import Block, { genesis } from './block'
@@ -12,6 +18,7 @@ import { txQueue } from './miner'
 
 const writeFile = promisify(writeFileCb)
 
+// load data
 let dataChanged = false, updating = false
 const chainFile = 'chain.json'
 
@@ -23,6 +30,11 @@ try {
   console.log('[INFO] Data file not found, using empty: ' + e)
 }
 
+/**
+ * Inserts a new block into the chain.
+ * @param {Block} block the block to insert
+ * @throws {AssertionError} on invalid block
+ */
 export function addBlock (block) {
   const wrongReason = 'Invalid block ' + block.id
   assert(block instanceof Block, wrongReason)
@@ -39,10 +51,25 @@ export function addBlock (block) {
   dataChanged = true
 }
 
+/**
+ * Gets the last block in the chain.
+ * @returns {Block}
+ */
 export function getLastBlock () {
   return Object.values(chainData).reduce((prev, curr) => curr.height > prev.height ? curr : prev, genesis)
 }
 
+/**
+ * @typedef {object} UsableTx
+ * @property {Block} block the block the (proposed) tx belongs to
+ * @property {number} txCount the # of usable transaction in the block
+ */
+
+/**
+ * Gets all usable transactions of an account.
+ * @param {Account} [account] the account to check, defaults to current account
+ * @returns {UsableTx}
+ */
 export function getUsableTx (account = defaultAccount) {
   if (account instanceof Account) account = exportKey(account.pub)
   return getLongestChain().filter(block => block.account === account).flatMap(block => {
@@ -55,6 +82,11 @@ export function getUsableTx (account = defaultAccount) {
   })
 }
 
+/**
+ * Gets the longest chain
+ * @param {Block} [from] the last block to check, defaults to `getLastBlock()`
+ * @returns {Block[]}
+ */
 export function getLongestChain ( from = getLastBlock() ) {
   return [...function* () {
     let last = from
@@ -66,6 +98,7 @@ export function getLongestChain ( from = getLastBlock() ) {
   }()]
 }
 
+// save data
 setInterval(async () => {
   if(dataChanged && !updating) {
     updating = true

@@ -1,3 +1,5 @@
+/** @module account */
+
 import { generateKeyPair, exportKey } from './util'
 import { readFileSync, writeFile as writeFileCb } from 'fs'
 import { createPrivateKey, createPublicKey, KeyObject, createSign, createVerify } from 'crypto'
@@ -5,12 +7,22 @@ import { promisify } from 'util'
 
 const writeFile = promisify(writeFileCb)
 
+/** Class representing an endpoint account. */
 export default class Account {
+  /**
+   * Create an  object.
+   * @param {KeyObject} pub public key
+   * @param {KeyObject} [priv] private key
+   */
   constructor (pub, priv) {
     this.pub = pub
     this.priv = priv
   }
 
+  /**
+   * Validates the account object.
+   * @returns {boolean}
+   */
   validate () {
     if (!this.pub instanceof KeyObject) return false
     if (this.pub.type !== 'public') return false
@@ -23,6 +35,11 @@ export default class Account {
     return true
   }
 
+  /**
+   * Sign pieces of data.
+   * @param  {...(string|Buffer)} data data to sign
+   * @returns {string} signature
+   */
   sign (...data) {
     if (!this.priv) throw new Error('Private key must exist to sign a message')
     const sign = createSign('md5')
@@ -31,6 +48,12 @@ export default class Account {
     return sign.sign(this.priv, 'hex')
   }
 
+  /**
+   * Verifies pieces of data signed by `sign()`.
+   * @param {string} sign the signature
+   * @param  {...any} data data to verify
+   * @returns {boolean}
+   */
   verify (sign, ...data) {
     const verify = createVerify('md5')
     for(let d of data) verify.update(d)
@@ -38,12 +61,17 @@ export default class Account {
     return verify.verify(this.pub, sign, 'hex')
   }
 
+  /**
+   * Generates a new account.
+   * @returns {Account}
+   */
   static async generate () {
     const { publicKey, privateKey } = await generateKeyPair()
     return new Account(publicKey, privateKey)
   }
 }
 
+/** The account of the current andpoint. */
 export let account
 try {
   const priv = createPrivateKey(readFileSync('private.pem'))

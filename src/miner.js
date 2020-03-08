@@ -1,3 +1,5 @@
+/** @module miner */
+
 import { randomBytes } from 'crypto'
 import { hash, exportKey } from './util'
 import { getLastBlock, addBlock, chainData } from './chain'

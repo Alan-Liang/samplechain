@@ -1,3 +1,5 @@
+/** @module fe-server */
+
 import Koa from 'koa'
 import render from 'koa-ejs'
 import Router from '@koa/router'
@@ -23,11 +25,13 @@ render(app, {
   viewExt: 'ejs',
 })
 
+// setup central server fetch
 const setupCentral = async () => {
   await updateCentral()
   intervalId = setInterval(updateCentral, centralInterval)
 }
 
+// update peers from central
 const updateCentral = async () => {
   try {
     await fetch(new URL('/join', central)).then(res => res.json())
@@ -39,6 +43,9 @@ const updateCentral = async () => {
     clearInterval(intervalId)
   }
 }
+
+// The entries below could be quite obviously understood by running a FE server,
+// so they are not documented.
 
 router.get('/', async ctx => {
   if(central) ctx.redirect('/stats')
