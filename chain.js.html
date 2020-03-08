@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: chain.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: chain.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module chain */
+
+/**
+ * Current chain data.
+ * @type {Block[]}
+ */
+export let chainData
+
+import Block, { genesis } from './block'
+import { readFileSync, writeFile as writeFileCb } from 'fs'
+import { promisify } from 'util'
+import assert from 'assert'
+import { updateInterval, txPerBlock } from './consts'
+import Account, { account as defaultAccount } from './account'
+import { exportKey, hash } from './util'
+import Transaction from './transaction'
+import { txQueue } from './miner'
+
+const writeFile = promisify(writeFileCb)
+
+// load data
+let dataChanged = false, updating = false
+const chainFile = 'chain.json'
+
+try {
+  chainData = JSON.parse(readFileSync(chainFile))
+  for(let id in chainData) chainData[id] = new Block(chainData[id])
+} catch(e) {
+  chainData = { [genesis.id]: genesis }
+  console.log('[INFO] Data file not found, using empty: ' + e)
+}
+
+/**
+ * Inserts a new block into the chain.
+ * @param {Block} block the block to insert
+ * @throws {AssertionError} on invalid block
+ */
+export function addBlock (block) {
+  const wrongReason = 'Invalid block ' + block.id
+  assert(block instanceof Block, wrongReason)
+  assert(!block.isGenesis, wrongReason)
+  assert(block.validate(), wrongReason)
+  assert(block.data.every(tx => tx.validateNew(chainData[block.prev]) || txQueue.map(tx => tx.id).includes(tx.id)), wrongReason)
+  assert(block.data.every((tx, i) => block.data.every((tx1, j) => i === j || tx1.id !== tx.id)), wrongReason)
+  chainData[block.id] = block
+  for (let tx of block.data) {
+    const i = txQueue.map(tx => tx.id).indexOf(tx.id)
+    if (i &lt; 0) continue
+    txQueue.splice(i, 1)
+  }
+  dataChanged = true
+}
+
+/**
+ * Gets the last block in the chain.
+ * @returns {Block}
+ */
+export function getLastBlock () {
+  return Object.values(chainData).reduce((prev, curr) => curr.height > prev.height ? curr : prev, genesis)
+}
+
+/**
+ * @typedef {object} UsableTx
+ * @property {Block} block the block the (proposed) tx belongs to
+ * @property {number} txCount the # of usable transaction in the block
+ */
+
+/**
+ * Gets all usable transactions of an account.
+ * @param {Account} [account] the account to check, defaults to current account
+ * @returns {UsableTx}
+ */
+export function getUsableTx (account = defaultAccount) {
+  if (account instanceof Account) account = exportKey(account.pub)
+  return getLongestChain().filter(block => block.account === account).flatMap(block => {
+    const usables = []
+    for (let txCount of Array(txPerBlock).keys()) {
+      const id = hash(block.id, String(txCount))
+      if (Transaction.prototype.validateNew.call({ id }) &amp;&amp; !txQueue.some(tx => tx.id === id)) usables.push({ block, txCount })
+    }
+    return usables
+  })
+}
+
+/**
+ * Gets the longest chain
+ * @param {Block} [from] the last block to check, defaults to `getLastBlock()`
+ * @returns {Block[]}
+ */
+export function getLongestChain ( from = getLastBlock() ) {
+  return [...function* () {
+    let last = from
+    while (!last.isGenesis) {
+      yield last
+      last = chainData[last.prev]
+    }
+    yield last
+  }()]
+}
+
+// save data
+setInterval(async () => {
+  if(dataChanged &amp;&amp; !updating) {
+    updating = true
+    dataChanged = false
+    let data = {}
+    for (let id in chainData) {
+      data[id] = chainData[id].toObject()
+    }
+    try {
+      await writeFile(chainFile,
+        JSON.stringify(data, null, process.env.NODE_ENV === 'development' ? 2 : 0)
+      )
+    } catch {
+      console.log('[ERR] Cannot write data file')
+    }
+    updating = false
+  }
+}, updateInterval)
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-account.html">account</a></li><li><a href="module-api-server.html">api-server</a></li><li><a href="module-block.html">block</a></li><li><a href="module-chain.html">chain</a></li><li><a href="module-consts.html">consts</a></li><li><a href="module-fe-server.html">fe-server</a></li><li><a href="module-miner.html">miner</a></li><li><a href="module-transaction.html">transaction</a></li><li><a href="module-util.html">util</a></li></ul><h3>Classes</h3><ul><li><a href="module-account.html">account</a></li><li><a href="module-block.html">block</a></li><li><a href="module-transaction.html">transaction</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.1</a> on Sun Mar 08 2020 18:33:00 GMT+0800 (GMT+08:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
